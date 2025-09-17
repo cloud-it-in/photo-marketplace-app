@@ -4,7 +4,7 @@ const nextConfig = {
   swcMinify: true,
   images: {
     domains: [
-      'your-bucket-name.s3.amazonaws.com',
+      'amunik-app-2025.s3.amazonaws.com',
       's3.amazonaws.com',
       'amazonaws.com'
     ],
