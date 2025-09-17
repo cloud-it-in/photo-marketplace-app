@@ -18,6 +18,13 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Add this BEFORE the mongoose.connect line
+console.log('MONGODB_URI Debug Info:');
+console.log('Length:', process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 'undefined');
+console.log('First 50 characters:', process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 50) : 'undefined');
+console.log('Contains mongodb+srv:', process.env.MONGODB_URI ? process.env.MONGODB_URI.includes('mongodb+srv://') : false);
+console.log('Contains .mongodb.net:', process.env.MONGODB_URI ? process.env.MONGODB_URI.includes('.mongodb.net') : false);
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
