@@ -379,7 +379,20 @@ const redirectToPayment = (photo) => {
         <div className="p-4">
           <h3 className="font-semibold text-gray-900 truncate">{photo.title}</h3>
           <p className="text-sm text-gray-500">by {photo.sellerName}</p>
-          
+          {/* THIS IS WHERE THE BUTTON CODE SHOULD GO: */}
+        {showActions && !photo.sold && !isOwner && (
+          <button
+            onClick={() => redirectToPayment(photo)}
+            className="mt-3 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 flex items-center justify-center space-x-2"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            <span>Buy Now</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
           {showPrice && (
             <div className="mt-2 flex items-center justify-between">
               {isEditing ? (
