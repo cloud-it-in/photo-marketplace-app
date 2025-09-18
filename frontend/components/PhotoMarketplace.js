@@ -137,7 +137,15 @@ const PhotoMarketplace = () => {
   // Purchase photo
   // Replace the purchasePhoto function with this:
 const redirectToPayment = (photo) => {
-  if (photo.sellerId === currentUser?.id) return;
+  console.log('redirectToPayment called with photo:', photo);
+  
+  if (photo.sellerId === currentUser?.id) {
+    console.log('Cannot buy own photo');
+    return;
+  }
+  
+  const currentUrl = window.location.href;
+  console.log('Current URL:', currentUrl);
   
   const paymentUrl = `https://amunik-app-2025.s3.amazonaws.com/payment.html?` + 
     new URLSearchParams({
@@ -145,9 +153,13 @@ const redirectToPayment = (photo) => {
       title: photo.title,
       seller: photo.sellerName,
       price: photo.price,
-      image: photo.imageUrl
+      image: photo.imageUrl,
+      returnUrl: currentUrl
     });
   
+  console.log('Payment URL:', paymentUrl);
+  
+  // Test if the URL opens
   window.open(paymentUrl, '_blank');
 };
 
