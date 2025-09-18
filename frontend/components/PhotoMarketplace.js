@@ -134,46 +134,33 @@ const PhotoMarketplace = () => {
     }
   };
 
-  // Purchase photo
-  // Replace the purchasePhoto function with this:
-const redirectToPayment = (photo) => {
-  console.log('redirectToPayment called with photo:', photo);
-  
-  if (photo.sellerId === currentUser?.id) {
-    console.log('Cannot buy own photo');
-    return;
-  }
-  
-  const currentUrl = window.location.href;
-  console.log('Current URL:', currentUrl);
-  
-  const paymentUrl = `https://amunik-app-2025.s3.amazonaws.com/payment.html?` + 
-    new URLSearchParams({
-      id: photo.id || photo._id,
-      title: photo.title,
-      seller: photo.sellerName,
-      price: photo.price,
-      image: photo.imageUrl,
-      returnUrl: currentUrl
-    });
-  
-  console.log('Payment URL:', paymentUrl);
-  
-  // Test if the URL opens
-  window.open(paymentUrl, '_blank');
-};
-
-// Update the PhotoCard component buy button:
-// In the PhotoCard component, find this button:
-{showActions && !photo.sold && !isOwner && (
-  <button
-    onClick={() => purchasePhoto(photo)}
-    className="mt-3 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 flex items-center justify-center space-x-2"
-  >
-    <ShoppingCart className="h-4 w-4" />
-    <span>Buy Now</span>
-  </button>
-)}
+  // Redirect to payment page
+  const redirectToPayment = (photo) => {
+    console.log('redirectToPayment called with photo:', photo);
+    
+    if (photo.sellerId === currentUser?.id) {
+      console.log('Cannot buy own photo');
+      return;
+    }
+    
+    const currentUrl = window.location.href;
+    console.log('Current URL:', currentUrl);
+    
+    const paymentUrl = `https://amunik-app-2025.s3.amazonaws.com/payment.html?` + 
+      new URLSearchParams({
+        id: photo.id || photo._id,
+        title: photo.title,
+        seller: photo.sellerName,
+        price: photo.price,
+        image: photo.imageUrl,
+        returnUrl: currentUrl
+      });
+    
+    console.log('Payment URL:', paymentUrl);
+    
+    // Test if the URL opens
+    window.open(paymentUrl, '_blank');
+  };
 
   // Update photo price
   const updatePhotoPrice = async (photoId, newPrice) => {
@@ -379,20 +366,7 @@ const redirectToPayment = (photo) => {
         <div className="p-4">
           <h3 className="font-semibold text-gray-900 truncate">{photo.title}</h3>
           <p className="text-sm text-gray-500">by {photo.sellerName}</p>
-          {/* THIS IS WHERE THE BUTTON CODE SHOULD GO: */}
-        {showActions && !photo.sold && !isOwner && (
-          <button
-            onClick={() => redirectToPayment(photo)}
-            className="mt-3 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 flex items-center justify-center space-x-2"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            <span>Buy Now</span>
-          </button>
-        )}
-      </div>
-    </div>
-  );
-};
+          
           {showPrice && (
             <div className="mt-2 flex items-center justify-between">
               {isEditing ? (
@@ -441,7 +415,7 @@ const redirectToPayment = (photo) => {
           
           {showActions && !photo.sold && !isOwner && (
             <button
-              onClick={() => purchasePhoto(photo)}
+              onClick={() => redirectToPayment(photo)}
               className="mt-3 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 flex items-center justify-center space-x-2"
             >
               <ShoppingCart className="h-4 w-4" />
@@ -503,7 +477,7 @@ const redirectToPayment = (photo) => {
               
               {!photo.sold && (photo.sellerId !== currentUser?.id) && (
                 <button
-                  onClick={() => purchasePhoto(photo)}
+                  onClick={() => redirectToPayment(photo)}
                   className="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-700 transition duration-200 flex items-center space-x-2"
                 >
                   <ShoppingCart className="h-5 w-5" />
