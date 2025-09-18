@@ -135,28 +135,30 @@ const PhotoMarketplace = () => {
   };
 
   // Purchase photo
-  const purchasePhoto = async (photo) => {
-    try {
-      const photoId = photo.id || photo._id;
-      if (photo.sellerId === currentUser.id) return;
+  // Replace the purchasePhoto function with this:
+const redirectToPayment = (photo) => {
+  if (photo.sellerId === currentUser?.id) return;
+  
+  const paymentUrl = `https://amunik-app-2025.s3.amazonaws.com/payment.html?` + 
+    new URLSearchParams({
+      id: photo.id || photo._id,
+      title: photo.title,
+      seller: photo.sellerName,
+      price: photo.price,
+      image: photo.imageUrl
+    });
+  
+  window.open(paymentUrl, '_blank');
+};
 
-      await apiCall(`/purchase/${photoId}`, {
-        method: 'POST',
-      });
-
-      // Update local state
-      setPhotos(photos.map(p => 
-        (p.id === photoId || p._id === photoId)
-          ? { ...p, sold: true, buyerId: currentUser.id, buyerName: currentUser.name } 
-          : p
-      ));
-      
-      setSelectedPhoto(null);
-      alert('Photo purchased successfully!');
-    } catch (error) {
-      alert('Purchase failed: ' + error.message);
-    }
-  };
+// Update the PhotoCard component buy button:
+<button
+  onClick={() => redirectToPayment(photo)}
+  className="mt-3 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 flex items-center justify-center space-x-2"
+>
+  <ShoppingCart className="h-4 w-4" />
+  <span>Buy Now</span>
+</button>
 
   // Update photo price
   const updatePhotoPrice = async (photoId, newPrice) => {
