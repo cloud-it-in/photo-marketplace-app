@@ -377,7 +377,11 @@ app.delete('/api/photos/:photoId', authenticateToken, async (req, res) => {
     if (photo.sold) {
       return res.status(400).json({ error: 'Cannot delete sold photo' });
     }
-
+// ADD THE NEW PAYMENT COMPLETION ROUTE HERE:
+app.post('/api/complete-purchase', authenticateToken, async (req, res) => {
+  // ... the payment completion code
+});
+    
     // Delete from S3
     const deleteParams = {
       Bucket: BUCKET_NAME,
