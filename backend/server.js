@@ -224,7 +224,7 @@ app.post('/api/upload-photo', authenticateToken, upload.single('photo'), async (
       Key: fileName,
       Body: buffer,
       ContentType: mimetype,
-      ACL: 'public-read'
+   
     };
 
     const result = await s3.upload(uploadParams).promise();
