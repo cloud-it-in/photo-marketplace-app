@@ -377,10 +377,38 @@ app.delete('/api/photos/:photoId', authenticateToken, async (req, res) => {
     if (photo.sold) {
       return res.status(400).json({ error: 'Cannot delete sold photo' });
     }
-// ADD THE NEW PAYMENT COMPLETION ROUTE HERE:
+// Process completed payment
 app.post('/api/complete-purchase', authenticateToken, async (req, res) => {
-  // ... the payment completion code
+  try {
+    const { photoId, paymentId, paymentMethod } = req.body;
+    
+    const photo = await Photo.findById(photoId);
+    if (!photo || photo.sold) {
+      return res.status(400).json({ error: 'Photo not available' });
+    }
+
+    // Update photo as sold
+    photo.sold = true;
+    photo.buyerId = req.user.userId;
+    photo.buyerName = req.user.name;
+    photo.paymentId = paymentId;
+    photo.paymentMethod = paymentMethod;
+    photo.soldDate = new Date();
+    await photo.save();
+
+    // Update buyer's purchases
+    await User.findByIdAndUpdate(
+      req.user.userId,
+      { $push: { purchases: photo._id } }
+    );
+
+    res.json({ message: 'Purchase completed successfully', photo });
+  } catch (error) {
+    console.error('Purchase completion error:', error);
+    res.status(500).json({ error: 'Purchase completion failed' });
+  }
 });
+  // ... the payment completion code
     
     // Delete from S3
     const deleteParams = {
