@@ -337,13 +337,13 @@ const PhotoMarketplace = () => {
 
   // Photo Card Component
   const PhotoCard = ({ photo, showPrice = true, showActions = true, isOwner = false }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editPrice, setEditPrice] = useState(photo.price);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editPrice, setEditPrice] = useState(photo.price);
 
-    const handlePriceSave = () => {
-      updatePhotoPrice(photo.id || photo._id, editPrice);
-      setIsEditing(false);
-    };
+  const handlePriceSave = () => {
+    updatePhotoPrice(photo.id || photo._id, editPrice);
+    setIsEditing(false);
+  };
 
     return (
       <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-105">
