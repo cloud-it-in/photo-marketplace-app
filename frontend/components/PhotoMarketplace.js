@@ -167,7 +167,7 @@ const redirectToPayment = (photo) => {
 // In the PhotoCard component, find this button:
 {showActions && !photo.sold && !isOwner && (
   <button
-    onClick={() => redirectToPayment(photo)}
+    onClick={() => purchasePhoto(photo)}
     className="mt-3 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 flex items-center justify-center space-x-2"
   >
     <ShoppingCart className="h-4 w-4" />
