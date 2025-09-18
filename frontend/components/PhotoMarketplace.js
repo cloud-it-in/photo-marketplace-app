@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Upload, User, ShoppingCart, Eye, DollarSign, X, Edit2, Save, LogOut, Loader2 } from 'lucide-react';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+console.log('API_BASE_URL:', API_BASE_URL); // Add this line temporarily
 
 const PhotoMarketplace = () => {
   const [currentUser, setCurrentUser] = useState(null);
