@@ -18,13 +18,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Add this BEFORE the mongoose.connect line
-console.log('MONGODB_URI Debug Info:');
-console.log('Length:', process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 'undefined');
-console.log('First 50 characters:', process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 50) : 'undefined');
-console.log('Contains mongodb+srv:', process.env.MONGODB_URI ? process.env.MONGODB_URI.includes('mongodb+srv://') : false);
-console.log('Contains .mongodb.net:', process.env.MONGODB_URI ? process.env.MONGODB_URI.includes('.mongodb.net') : false);
-
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
@@ -223,8 +216,7 @@ app.post('/api/upload-photo', authenticateToken, upload.single('photo'), async (
       Bucket: BUCKET_NAME,
       Key: fileName,
       Body: buffer,
-      ContentType: mimetype,
-   
+      ContentType: mimetype
     };
 
     const result = await s3.upload(uploadParams).promise();
@@ -377,6 +369,31 @@ app.delete('/api/photos/:photoId', authenticateToken, async (req, res) => {
     if (photo.sold) {
       return res.status(400).json({ error: 'Cannot delete sold photo' });
     }
+
+    // Delete from S3
+    const deleteParams = {
+      Bucket: BUCKET_NAME,
+      Key: photo.s3Key
+    };
+
+    await s3.deleteObject(deleteParams).promise();
+
+    // Delete from database
+    await Photo.findByIdAndDelete(photo._id);
+
+    // Remove from user's sales array
+    await User.findByIdAndUpdate(
+      req.user.userId,
+      { $pull: { sales: photo._id } }
+    );
+
+    res.json({ message: 'Photo deleted successfully' });
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({ error: 'Failed to delete photo' });
+  }
+});
+
 // Process completed payment
 app.post('/api/complete-purchase', authenticateToken, async (req, res) => {
   try {
@@ -408,72 +425,8 @@ app.post('/api/complete-purchase', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Purchase completion failed' });
   }
 });
-  // ... the payment completion code
-    
-    // Delete from S3
-    const deleteParams = {
-      Bucket: BUCKET_NAME,
-      Key: photo.s3Key
-    };
-
-    await s3.deleteObject(deleteParams).promise();
-
-    // Delete from database
-    await Photo.findByIdAndDelete(photo._id);
-
-    // Remove from user's sales array
-    await User.findByIdAndUpdate(
-      req.user.userId,
-      { $pull: { sales: photo._id } }
-    );
-
-    res.json({ message: 'Photo deleted successfully' });
-  } catch (error) {
-    console.error('Delete error:', error);
-    res.status(500).json({ error: 'Failed to delete photo' });
-  }
-});
-// Delete photo route (should already exist, but verify it's complete)
-app.delete('/api/photos/:photoId', authenticateToken, async (req, res) => {
-  try {
-    const photo = await Photo.findOne({ 
-      _id: req.params.photoId, 
-      sellerId: req.user.userId 
-    });
-
-    if (!photo) {
-      return res.status(404).json({ error: 'Photo not found or unauthorized' });
-    }
-
-    if (photo.sold) {
-      return res.status(400).json({ error: 'Cannot delete sold photo' });
-    }
-
-    // Delete from S3
-    const deleteParams = {
-      Bucket: BUCKET_NAME,
-      Key: photo.s3Key
-    };
-
-    await s3.deleteObject(deleteParams).promise();
-
-    // Delete from database
-    await Photo.findByIdAndDelete(photo._id);
-
-    // Remove from user's sales array
-    await User.findByIdAndUpdate(
-      req.user.userId,
-      { $pull: { sales: photo._id } }
-    );
-
-    res.json({ message: 'Photo deleted successfully' });
-  } catch (error) {
-    console.error('Delete error:', error);
-    res.status(500).json({ error: 'Failed to delete photo' });
-  }
-});
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
