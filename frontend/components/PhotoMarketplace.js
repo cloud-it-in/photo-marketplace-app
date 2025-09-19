@@ -213,21 +213,45 @@ const handleDeletePhoto = async (photo) => {
   
   // In the PhotoCard component, add this after the price editing section:
 {isOwner && !photo.sold && (
-  <div className="mt-3 flex space-x-2">
-    <button
-      onClick={() => setIsEditing(true)}
-      className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center space-x-2"
-    >
-      <Edit2 className="h-4 w-4" />
-      <span>Edit Price</span>
-    </button>
-    <button
-      onClick={() => handleDeletePhoto(photo)}
-      className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-200 flex items-center justify-center space-x-2"
-    >
-      <Trash2 className="h-4 w-4" />
-      <span>Delete</span>
-    </button>
+  <div className="mt-3">
+    {!isEditing ? (
+      <div className="flex space-x-2">
+        <button
+          onClick={() => setIsEditing(true)}
+          className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center space-x-1"
+        >
+          <Edit2 className="h-4 w-4" />
+          <span className="text-sm">Edit</span>
+        </button>
+        <button
+          onClick={() => handleDeletePhoto(photo)}
+          className="flex-1 bg-red-600 text-white py-2 px-3 rounded-lg hover:bg-red-700 transition duration-200 flex items-center justify-center space-x-1"
+        >
+          <Trash2 className="h-4 w-4" />
+          <span className="text-sm">Delete</span>
+        </button>
+      </div>
+    ) : (
+      <div className="flex space-x-2">
+        <button
+          onClick={handlePriceSave}
+          className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 transition duration-200 flex items-center justify-center space-x-1"
+        >
+          <Save className="h-4 w-4" />
+          <span className="text-sm">Save</span>
+        </button>
+        <button
+          onClick={() => {
+            setIsEditing(false);
+            setEditPrice(photo.price);
+          }}
+          className="flex-1 bg-gray-600 text-white py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-200 flex items-center justify-center space-x-1"
+        >
+          <X className="h-4 w-4" />
+          <span className="text-sm">Cancel</span>
+        </button>
+      </div>
+    )}
   </div>
 )}
   // Filter photos based on current view
