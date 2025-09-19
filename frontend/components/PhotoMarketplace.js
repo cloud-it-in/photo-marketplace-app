@@ -1,6 +1,6 @@
 // frontend/components/PhotoMarketplace.js
 import React, { useState, useEffect } from 'react';
-import { Camera, Upload, User, ShoppingCart, Eye, DollarSign, X, Edit2, Save, LogOut, Loader2 } from 'lucide-react';
+import { Camera, Upload, User, ShoppingCart, Eye, DollarSign, X, Edit2, Save, LogOut, Loader2, Trash2 } from 'lucide-react';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 console.log('API_BASE_URL:', API_BASE_URL); // Add this line temporarily
@@ -180,6 +180,56 @@ const PhotoMarketplace = () => {
     }
   };
 
+  // Add this function after the updatePhotoPrice function:
+const handleDeletePhoto = async (photo) => {
+  if (!confirm(`Are you sure you want to delete "${photo.title}"? This action cannot be undone.`)) {
+    return;
+  }
+
+  try {
+    const photoId = photo.id || photo._id;
+    
+    const response = await fetch(`${API_BASE_URL}/photos/${photoId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Delete failed');
+    }
+
+    // Remove photo from local state
+    setPhotos(photos.filter(p => (p.id || p._id) !== photoId));
+    
+    alert('Photo deleted successfully');
+  } catch (error) {
+    alert('Delete failed: ' + error.message);
+  }
+};
+  
+  // In the PhotoCard component, add this after the price editing section:
+{isOwner && !photo.sold && (
+  <div className="mt-3 flex space-x-2">
+    <button
+      onClick={() => setIsEditing(true)}
+      className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center space-x-2"
+    >
+      <Edit2 className="h-4 w-4" />
+      <span>Edit Price</span>
+    </button>
+    <button
+      onClick={() => handleDeletePhoto(photo)}
+      className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-200 flex items-center justify-center space-x-2"
+    >
+      <Trash2 className="h-4 w-4" />
+      <span>Delete</span>
+    </button>
+  </div>
+)}
   // Filter photos based on current view
   const getFilteredPhotos = () => {
     const userId = currentUser?.id;
