@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Upload, User, ShoppingCart, Eye, DollarSign, X, Edit2, Save, LogOut, Loader2, Trash2 } from 'lucide-react';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-console.log('API_BASE_URL:', API_BASE_URL); // Add this line temporarily
 
 const PhotoMarketplace = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -136,15 +135,11 @@ const PhotoMarketplace = () => {
 
   // Redirect to payment page
   const redirectToPayment = (photo) => {
-    console.log('redirectToPayment called with photo:', photo);
-    
     if (photo.sellerId === currentUser?.id) {
-      console.log('Cannot buy own photo');
       return;
     }
     
     const currentUrl = window.location.href;
-    console.log('Current URL:', currentUrl);
     
     const paymentUrl = `https://amunik-app-2025.s3.amazonaws.com/payment.html?` + 
       new URLSearchParams({
@@ -156,9 +151,6 @@ const PhotoMarketplace = () => {
         returnUrl: currentUrl
       });
     
-    console.log('Payment URL:', paymentUrl);
-    
-    // Test if the URL opens
     window.open(paymentUrl, '_blank');
   };
 
@@ -180,80 +172,37 @@ const PhotoMarketplace = () => {
     }
   };
 
-  // Add this function after the updatePhotoPrice function:
-const handleDeletePhoto = async (photo) => {
-  if (!confirm(`Are you sure you want to delete "${photo.title}"? This action cannot be undone.`)) {
-    return;
-  }
-
-  try {
-    const photoId = photo.id || photo._id;
-    
-    const response = await fetch(`${API_BASE_URL}/photos/${photoId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Delete failed');
+  // Delete photo
+  const handleDeletePhoto = async (photo) => {
+    if (!confirm(`Are you sure you want to delete "${photo.title}"? This action cannot be undone.`)) {
+      return;
     }
 
-    // Remove photo from local state
-    setPhotos(photos.filter(p => (p.id || p._id) !== photoId));
-    
-    alert('Photo deleted successfully');
-  } catch (error) {
-    alert('Delete failed: ' + error.message);
-  }
-};
+    try {
+      const photoId = photo.id || photo._id;
+      
+      const response = await fetch(`${API_BASE_URL}/photos/${photoId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Delete failed');
+      }
+
+      // Remove photo from local state
+      setPhotos(photos.filter(p => (p.id || p._id) !== photoId));
+      
+      alert('Photo deleted successfully');
+    } catch (error) {
+      alert('Delete failed: ' + error.message);
+    }
+  };
   
-  // In the PhotoCard component, add this after the price editing section:
-{isOwner && !photo.sold && (
-  <div className="mt-3">
-    {!isEditing ? (
-      <div className="flex space-x-2">
-        <button
-          onClick={() => setIsEditing(true)}
-          className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center space-x-1"
-        >
-          <Edit2 className="h-4 w-4" />
-          <span className="text-sm">Edit</span>
-        </button>
-        <button
-          onClick={() => handleDeletePhoto(photo)}
-          className="flex-1 bg-red-600 text-white py-2 px-3 rounded-lg hover:bg-red-700 transition duration-200 flex items-center justify-center space-x-1"
-        >
-          <Trash2 className="h-4 w-4" />
-          <span className="text-sm">Delete</span>
-        </button>
-      </div>
-    ) : (
-      <div className="flex space-x-2">
-        <button
-          onClick={handlePriceSave}
-          className="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg hover:bg-green-700 transition duration-200 flex items-center justify-center space-x-1"
-        >
-          <Save className="h-4 w-4" />
-          <span className="text-sm">Save</span>
-        </button>
-        <button
-          onClick={() => {
-            setIsEditing(false);
-            setEditPrice(photo.price);
-          }}
-          className="flex-1 bg-gray-600 text-white py-2 px-3 rounded-lg hover:bg-gray-700 transition duration-200 flex items-center justify-center space-x-1"
-        >
-          <X className="h-4 w-4" />
-          <span className="text-sm">Cancel</span>
-        </button>
-      </div>
-    )}
-  </div>
-)}
   // Filter photos based on current view
   const getFilteredPhotos = () => {
     const userId = currentUser?.id;
@@ -411,13 +360,13 @@ const handleDeletePhoto = async (photo) => {
 
   // Photo Card Component
   const PhotoCard = ({ photo, showPrice = true, showActions = true, isOwner = false }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editPrice, setEditPrice] = useState(photo.price);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editPrice, setEditPrice] = useState(photo.price);
 
-  const handlePriceSave = () => {
-    updatePhotoPrice(photo.id || photo._id, editPrice);
-    setIsEditing(false);
-  };
+    const handlePriceSave = () => {
+      updatePhotoPrice(photo.id || photo._id, editPrice);
+      setIsEditing(false);
+    };
 
     return (
       <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-105">
@@ -484,264 +433,3 @@ const handleDeletePhoto = async (photo) => {
                   )}
                 </div>
               )}
-            </div>
-          )}
-          
-          {showActions && !photo.sold && !isOwner && (
-            <button
-              onClick={() => redirectToPayment(photo)}
-              className="mt-3 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200 flex items-center justify-center space-x-2"
-            >
-              <ShoppingCart className="h-4 w-4" />
-              <span>Buy Now</span>
-            </button>
-          )}
-          
-          {photo.sold && photo.buyerName && (
-            <div className="mt-3 text-sm text-gray-500">
-              Sold to: {photo.buyerName}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  // Photo Modal
-  const PhotoModal = ({ photo, onClose }) => {
-    if (!photo) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl max-w-4xl max-h-full overflow-auto">
-          <div className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h2 className="text-2xl font-bold">{photo.title}</h2>
-                <p className="text-gray-600">by {photo.sellerName}</p>
-              </div>
-              <button
-                onClick={onClose}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <img
-                src={photo.imageUrl}
-                alt={photo.title}
-                className="w-full max-h-96 object-contain rounded-lg"
-              />
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                  <span className="font-bold text-green-600 text-xl">${photo.price}</span>
-                </div>
-                {photo.sold && (
-                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                    Sold
-                  </span>
-                )}
-              </div>
-              
-              {!photo.sold && (photo.sellerId !== currentUser?.id) && (
-                <button
-                  onClick={() => redirectToPayment(photo)}
-                  className="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-700 transition duration-200 flex items-center space-x-2"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  <span>Buy Now</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  if (showLogin) {
-    return <AuthForm />;
-  }
-
-  const filteredPhotos = getFilteredPhotos();
-  const isSeller = currentUser?.userType === 'seller';
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <Camera className="h-8 w-8 text-purple-600" />
-              <h1 className="text-xl font-bold text-gray-900">Photo Marketplace</h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <User className="h-4 w-4" />
-                <span>{currentUser.name}</span>
-                <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
-                  {currentUser.userType}
-                </span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors duration-200"
-                title="Logout"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="text-sm">Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('browse')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                activeTab === 'browse'
-                  ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <Eye className="h-4 w-4" />
-                <span>Browse Photos</span>
-              </div>
-            </button>
-            
-            {isSeller && (
-              <button
-                onClick={() => setActiveTab('myGallery')}
-                className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                  activeTab === 'myGallery'
-                    ? 'border-purple-500 text-purple-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <Camera className="h-4 w-4" />
-                  <span>My Gallery</span>
-                </div>
-              </button>
-            )}
-            
-            <button
-              onClick={() => setActiveTab('purchased')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                activeTab === 'purchased'
-                  ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <ShoppingCart className="h-4 w-4" />
-                <span>Purchased</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Upload Section */}
-        {activeTab === 'myGallery' && isSeller && (
-          <div className="mb-8 bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Upload Photos</h2>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-              <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-600 mb-4">Drag and drop your photos here, or click to select</p>
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={(e) => handlePhotoUpload(e.target.files)}
-                className="hidden"
-                id="photo-upload"
-              />
-              <label
-                htmlFor="photo-upload"
-                className="bg-purple-600 text-white py-2 px-6 rounded-lg hover:bg-purple-700 transition duration-200 cursor-pointer inline-flex items-center space-x-2"
-              >
-                {uploading ? (
-                  <React.Fragment>
-                    <Loader2 className="animate-spin h-4 w-4" />
-                    <span>Uploading...</span>
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <Upload className="h-4 w-4" />
-                    <span>Select Photos</span>
-                  </React.Fragment>
-                )}
-              </label>
-              <p className="text-sm text-gray-500 mt-2">
-                Images will be stored securely in AWS S3
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="animate-spin h-8 w-8 text-purple-600" />
-            <span className="ml-2 text-gray-600">Loading photos...</span>
-          </div>
-        )}
-
-        {/* Photos Grid */}
-        {!loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredPhotos.map((photo) => (
-              <PhotoCard
-                key={photo.id || photo._id}
-                photo={photo}
-                showPrice={true}
-                showActions={true}
-                isOwner={(photo.sellerId === currentUser?.id)}
-              />
-            ))}
-          </div>
-        )}
-
-        {!loading && filteredPhotos.length === 0 && (
-          <div className="text-center py-12">
-            <Camera className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">
-              {activeTab === 'browse' && 'No photos available for purchase'}
-              {activeTab === 'myGallery' && 'Your gallery is empty'}
-              {activeTab === 'purchased' && 'No purchases yet'}
-            </h3>
-            <p className="text-gray-600">
-              {activeTab === 'browse' && 'Check back later for new photos!'}
-              {activeTab === 'myGallery' && 'Upload your first photo to get started'}
-              {activeTab === 'purchased' && 'Browse photos to make your first purchase'}
-            </p>
-          </div>
-        )}
-      </main>
-
-      {/* Photo Modal */}
-      <PhotoModal
-        photo={selectedPhoto}
-        onClose={() => setSelectedPhoto(null)}
-      />
-    </div>
-  );
-};
-
-export default PhotoMarketplace;
