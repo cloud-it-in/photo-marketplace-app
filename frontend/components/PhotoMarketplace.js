@@ -155,22 +155,23 @@ const PhotoMarketplace = () => {
   };
 
   // Update photo price
-  const updatePhotoPrice = async (photoId, newPrice) => {
-    try {
-      await apiCall(`/photos/${photoId}/price`, {
-        method: 'PATCH',
-        body: JSON.stringify({ price: parseFloat(newPrice) || 0 }),
-      });
+const updatePhotoPrice = async (photoId, newPrice) => {
+  try {
+    await apiCall(`/photos/${photoId}/price`, {
+      method: 'PATCH',
+      body: JSON.stringify({ price: parseFloat(newPrice) || 0 }),
+    });
 
-      setPhotos(photos.map(photo =>
-        (photo.id === photoId || photo._id === photoId) 
-          ? { ...photo, price: parseFloat(newPrice) || 0 } 
-          : photo
-      ));
-    } catch (error) {
-      alert('Price update failed: ' + error.message);
-    }
-  };
+    setPhotos(photos.map(photo =>
+      (photo.id === photoId || photo._id === photoId)
+        ? { ...photo, price: parseFloat(newPrice) || 0 }
+        : photo
+    ));
+  } catch (error) {
+    alert('Price update failed: ' + error.message);
+  }
+};
+
 
   // Delete photo
   const handleDeletePhoto = async (photo) => {
