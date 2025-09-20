@@ -11,6 +11,12 @@ require('dotenv').config();
 
 const app = express();
 
+// Import admin routes
+const adminRoutes = require('./routes/admin');
+
+// Use admin routes
+app.use('/api/admin', adminRoutes);
+
 // Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
