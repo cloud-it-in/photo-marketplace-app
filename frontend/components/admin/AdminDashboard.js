@@ -1,15 +1,6 @@
 // In your AdminDashboard.js
 import styles from '../../styles/Admin.module.css';
 
-// Use the styles
-<div className={styles.adminPanel}>
-  <div className={styles.statsContainer}>
-    <div className={styles.statCard}>
-      // ...
-    </div>
-  </div>
-</div>
-
 // frontend/components/admin/AdminDashboard.js
 import React, { useState, useEffect } from 'react';
 import styles from '../../styles/Admin.module.css';
