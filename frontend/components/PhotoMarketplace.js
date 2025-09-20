@@ -580,4 +580,6 @@ const PhotoMarketplace = () => {
       </main>
     </div>
   );
-};  
+};
+
+export default PhotoMarketplace;
