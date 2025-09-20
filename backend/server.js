@@ -24,6 +24,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// In your server.js, add:
+app.use('/admin', express.static(path.join(__dirname, '../admin')));
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
