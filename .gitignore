@@ -1,11 +1,20 @@
 # Dependencies
 node_modules/
+*/node_modules/
 npm-debug.log*
 
 # Production builds
 .next/
 dist/
 build/
+frontend/.next/
+frontend/out/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Environment variables
 .env
@@ -13,6 +22,30 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+backend/.env
+frontend/.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# AWS/S3 credentials
+aws-config.json
+credentials.json
+
+# Uploads (local testing)
+uploads/
+temp/
+# Database
+*.sqlite
+*.sqlite3
+mongodb-data/
+
+# Admin credentials (if stored in file)
+admin-credentials.json
 
 # OS files
 .DS_Store
