@@ -580,3 +580,4 @@ const PhotoMarketplace = () => {
       </main>
     </div>
   );
+};  
