@@ -155,23 +155,22 @@ const PhotoMarketplace = () => {
   };
 
   // Update photo price
-const updatePhotoPrice = async (photoId, newPrice) => {
-  try {
-    await apiCall(`/photos/${photoId}/price`, {
-      method: 'PATCH',
-      body: JSON.stringify({ price: parseFloat(newPrice) || 0 }),
-    });
+  const updatePhotoPrice = async (photoId, newPrice) => {
+    try {
+      await apiCall(`/photos/${photoId}/price`, {
+        method: 'PATCH',
+        body: JSON.stringify({ price: parseFloat(newPrice) || 0 }),
+      });
 
-    setPhotos(photos.map(photo =>
-      (photo.id === photoId || photo._id === photoId)
-        ? { ...photo, price: parseFloat(newPrice) || 0 }
-        : photo
-    ));
-  } catch (error) {
-    alert('Price update failed: ' + error.message);
-  }
-};
-
+      setPhotos(photos.map(photo =>
+        (photo.id === photoId || photo._id === photoId)
+          ? { ...photo, price: parseFloat(newPrice) || 0 }
+          : photo
+      ));
+    } catch (error) {
+      alert('Price update failed: ' + error.message);
+    }
+  };
 
   // Delete photo
   const handleDeletePhoto = async (photo) => {
@@ -434,3 +433,150 @@ const updatePhotoPrice = async (photoId, newPrice) => {
                   )}
                 </div>
               )}
+            </div>
+          )}
+          {showActions && (
+            <div className="mt-4 flex space-x-2">
+              {!isOwner && !photo.sold && (
+                <button
+                  onClick={() => redirectToPayment(photo)}
+                  className="flex items-center px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
+                >
+                  <ShoppingCart className="h-4 w-4 mr-1" />
+                  Buy
+                </button>
+              )}
+              {isOwner && !photo.sold && (
+                <button
+                  onClick={() => handleDeletePhoto(photo)}
+                  className="flex items-center px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Delete
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Main render
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-blue-200">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4 bg-white shadow">
+        <div className="flex items-center space-x-3">
+          <Camera className="h-8 w-8 text-purple-600" />
+          <span className="text-2xl font-bold text-gray-900">Photo Marketplace</span>
+        </div>
+        {currentUser && (
+          <div className="flex items-center space-x-4">
+            <span className="text-gray-700 flex items-center">
+              <User className="h-5 w-5 mr-1" />
+              {currentUser.name}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="flex items-center px-3 py-2 bg-gray-100 rounded hover:bg-gray-200 transition"
+            >
+              <LogOut className="h-4 w-4 mr-1" />
+              Logout
+            </button>
+          </div>
+        )}
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-5xl mx-auto py-8 px-4">
+        {showLogin ? (
+          <AuthForm />
+        ) : (
+          <React.Fragment>
+            {/* Tabs */}
+            <div className="flex space-x-4 mb-8">
+              <button
+                className={`flex items-center px-4 py-2 rounded-lg font-medium transition ${
+                  activeTab === 'browse'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-white text-purple-600 border border-purple-200'
+                }`}
+                onClick={() => setActiveTab('browse')}
+              >
+                <Eye className="h-5 w-5 mr-2" />
+                Browse
+              </button>
+              <button
+                className={`flex items-center px-4 py-2 rounded-lg font-medium transition ${
+                  activeTab === 'myGallery'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-white text-purple-600 border border-purple-200'
+                }`}
+                onClick={() => setActiveTab('myGallery')}
+              >
+                <Upload className="h-5 w-5 mr-2" />
+                My Gallery
+              </button>
+              <button
+                className={`flex items-center px-4 py-2 rounded-lg font-medium transition ${
+                  activeTab === 'purchased'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-white text-purple-600 border border-purple-200'
+                }`}
+                onClick={() => setActiveTab('purchased')}
+              >
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                Purchased
+              </button>
+            </div>
+
+            {/* Upload Button */}
+            {activeTab === 'myGallery' && (
+              <div className="mb-6">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <span className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition flex items-center">
+                    <Upload className="h-5 w-5 mr-2" />
+                    {uploading ? 'Uploading...' : 'Upload Photo'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    disabled={uploading}
+                    onChange={(e) => handlePhotoUpload(e.target.files)}
+                  />
+                </label>
+              </div>
+            )}
+
+            {/* Photo Grid */}
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <Loader2 className="animate-spin h-8 w-8 text-purple-600" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                {getFilteredPhotos().length === 0 ? (
+                  <div className="col-span-full text-center text-gray-500">
+                    No photos found.
+                  </div>
+                ) : (
+                  getFilteredPhotos().map((photo) => (
+                    <PhotoCard
+                      key={photo.id || photo._id}
+                      photo={photo}
+                      showPrice={true}
+                      showActions={activeTab !== 'purchased'}
+                      isOwner={photo.sellerId === currentUser?.id}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+          </React.Fragment>
+        )}
+      </main>
+    </div>
+  );
