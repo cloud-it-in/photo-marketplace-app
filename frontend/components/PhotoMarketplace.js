@@ -1,3 +1,14 @@
+//Missing components-Co-Pilot
+import React, { useState } from 'react';
+import {
+  DollarSign,
+  Save,
+  X,
+  Edit2,
+  ShoppingCart,
+  Trash2
+} from 'react-feather';
+
 // frontend/components/PhotoMarketplace.js
 import React, { useState, useEffect } from 'react';
 import { Camera, Upload, User, ShoppingCart, Eye, DollarSign, X, Edit2, Save, LogOut, Loader2, Trash2 } from 'lucide-react';
