@@ -4,6 +4,85 @@ const router = express.Router();
 const Photo = require('../models/Photo');
 const User = require('../models/User');
 
+// backend/routes/admin.js
+const express = require('express');
+const router = express.Router();
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
+// Admin login endpoint
+router.post('/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user and include password field
+    const user = await User.findOne({ email }).select('+password');
+    
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Check if user is admin
+    if (!user.isAdmin) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    // Check if account is locked
+    if (user.isLocked()) {
+      return res.status(423).json({ error: 'Account is locked. Please try again later.' });
+    }
+
+    // Verify password
+    const isValidPassword = await user.comparePassword(password);
+    
+    if (!isValidPassword) {
+      await user.incLoginAttempts();
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Reset login attempts on successful login
+    await user.resetLoginAttempts();
+    
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        userId: user._id, 
+        email: user.email,
+        isAdmin: true 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        userType: user.userType,
+        isAdmin: user.isAdmin,
+        lastLogin: user.lastLogin
+      },
+      token
+    });
+
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Verify admin token
+router.get('/admin/verify', authenticateAdmin, (req, res) => {
+  res.json({ valid: true, user: req.user });
+});
+
+module.exports = router;
+
 // Admin middleware to check admin privileges
 const isAdmin = (req, res, next) => {
     // Check if user is admin (add 'isAdmin' field to User schema)
